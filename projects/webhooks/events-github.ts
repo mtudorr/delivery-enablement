@@ -25,7 +25,7 @@ const isAuthorized = async (event: APIGatewayEvent): Promise<boolean> => {
         .update(event.body ?? "")
         .digest("hex");
     const trusted = Buffer.from(`sha256=${signature}`, 'ascii');
-    const receive = Buffer.from(event.headers["x-hub-signature-256"] ?? "", 'ascii');
+    const receive = Buffer.from(event.headers["X-Hub-Signature-256"] ?? "", 'ascii');
 
     if (trusted.length !== receive.length) {
         return false;
@@ -44,6 +44,8 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
             body: "Invalid signature"
         };
     }
+
+    console.log("AUTHORIZED");
 
     return {
         statusCode: 200,
