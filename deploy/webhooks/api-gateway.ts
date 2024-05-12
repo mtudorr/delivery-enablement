@@ -15,11 +15,7 @@ export class ApiGateway {
             }
         });
 
-        const apiKey = new apiGateway.ApiKey(scope, "Api/Webhooks-GitHub-Key", {
-            apiKeyName: "delivery-enablement-webhooks-github"
-        });
-
-        const usagePlan = new apiGateway.UsagePlan(scope, "Api/Webhooks-GitHub-Usage-Plan", {
+        new apiGateway.UsagePlan(scope, "Api/Webhooks-GitHub-Usage-Plan", {
             name: "delivery-enablement-webhooks-github",
             apiStages: [
                 {
@@ -28,7 +24,6 @@ export class ApiGateway {
                 }
             ]
         });
-        usagePlan.addApiKey(apiKey);
 
         this.resourceV1 = restApi.root.addResource("v1");
         this.resourceV1Events = this.resourceV1.addResource("events");
@@ -39,6 +34,9 @@ export class ApiGateway {
             resource: this.resourceV1EventsGitHub,
             httpMethod: "POST",
             integration: integrationOfEventsGitHub,
+            options: {
+                apiKeyRequired: false
+            }
         });
     }
 }
