@@ -1,25 +1,16 @@
 import * as crypto from "crypto";
 import { APIGatewayProxyHandler, APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import { isPayloadPush, hasChanges } from "./payload-push";
+import { Environment } from "./platform/environment";
+import { Secrets } from "./platform/secrets";
+import { Stacks } from "./platform/stacks";
+
+const environment = new Environment();
+const secrets = new Secrets();
+const stacks = new Stacks(environment, secrets);
 
 const isAuthorized = async (event: APIGatewayEvent): Promise<boolean> => {
-    const secretName = process.env.SECRET_NAME_GITHUB_KEY;
-    if (secretName === undefined) {
-        return false;
-    }
-
-    const client = new SecretsManagerClient();
-    const input = {
-        SecretId: secretName
-    };
-    
-    const cmd = new GetSecretValueCommand(input);
-    const res = await client.send(cmd);
-
-    const key = res.SecretString;
-    if (key === undefined) {
-        return false;
-    }
+    const key = await secrets.retrieveString(environment.get("SECRET_NAME_GITHUB_KEY"));
 
     const signature = crypto.createHmac("sha256", key)
         .update(event.body ?? "")
@@ -43,6 +34,14 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
             statusCode: 403,
             body: "Invalid signature"
         };
+    }
+
+    if (isPayloadPush(event.body) && hasChanges(event.body)) {
+        console.log("Initiate build");
+
+        // TODO: await stacks.build(repo, branch);
+    } else {
+        console.log("Not a push event payload");
     }
 
     console.log("AUTHORIZED");
