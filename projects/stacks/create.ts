@@ -5,6 +5,7 @@ import { StackPersistence } from "./persistence/stack-peristence";
 import { IdOfStack } from "./domain/id-of-stack";
 import { StackStateEnum } from "./domain/stack-state-enum";
 import { Version } from "./persistence/version";
+import { Stack } from "./domain/stack";
 
 const environment = new Environment();
 const stackPersistence = new StackPersistence(environment);
@@ -22,13 +23,17 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
         }
 
         const idOfStack = new IdOfStack(valueOfRepoName, valueOfBranchName);
-        const stack = await stackPersistence.retrieveOrNull(idOfStack);
-        if (stack === null) {
+        const recordOfStack = await stackPersistence.retrieveOrNull(idOfStack);
+        if (recordOfStack === null) {
             await stackPersistence.save({ repo: valueOfRepoName, branch: valueOfBranchName,
                 state: StackStateEnum.CREATING, version: Version.none() });
         }
         else {
-            await stackPersistence.save({ ...stack, state: StackStateEnum.PENDING_CREATE });
+            const stack = new Stack(idOfStack, recordOfStack.state, recordOfStack.version);
+            stack.create();
+
+            await stackPersistence
+                .save({ repo: stack.id.repo, branch: stack.id.branch, state: stack.state, version: stack.version });
         }
     
         return { statusCode: 200, body: "" }

@@ -3,9 +3,11 @@ export enum StackStateEnum {
     READY = "ready",
     BUILDING = "building",
     REMOVING = "removing",
+    REMOVED = "removed",
     PENDING_BUILD = "pending_build",
     PENDING_REMOVE = "pending_remove",
     PENDING_CREATE = "pending_create",
+    PENDING_RECREATE = "pending_recreate"
 };
 
 const all: readonly string[] = Object.values(StackStateEnum);
