@@ -1,6 +1,9 @@
 import * as crypto from "crypto";
 import { APIGatewayProxyHandler, APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
 import { isPayloadPush, hasChanges } from "./payload-push";
+import { extractRepoAndBranchNames } from "./github-utils";
+import { isPayloadOpen } from "./payload-open";
+import { isPayloadClose } from "./payload-close"
 import { Environment } from "./platform/environment";
 import { Secrets } from "./platform/secrets";
 import { Stacks } from "./platform/stacks";
@@ -36,12 +39,34 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
         };
     }
 
-    if (isPayloadPush(event.body) && hasChanges(event.body)) {
+    if (event.body === null) {
+        return {
+            statusCode: 400,
+            body: "Body not set"
+        };
+    }
+
+    const body = JSON.parse(event.body);
+    const { repo, branch } = extractRepoAndBranchNames(body) ?? { repo: '', branch: '' };
+
+    if (isPayloadPush(body) && hasChanges(body)) {
         console.log("Initiate build");
 
-        // TODO: await stacks.build(repo, branch);
+        await stacks.build(repo, branch);
     } else {
         console.log("Not a push event payload");
+    }
+
+    if (isPayloadOpen(body)) {
+        console.log("Initiate create branch")
+
+        // await stacks.create(repo, branch);
+    }
+
+    if (isPayloadClose(body)) {
+        console.log("Initiate close branch")
+
+        // await stacks.remove(repo, branch);
     }
 
     console.log("AUTHORIZED");
