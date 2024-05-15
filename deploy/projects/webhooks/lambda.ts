@@ -22,7 +22,7 @@ export class Lambda {
         });
         roleExecution.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AWSLambdaBasicExecutionRole"));
         roleExecution.addManagedPolicy(new iam.ManagedPolicy(scope, "Iam/Read-Secret-GitHub-Key", {
-            managedPolicyName: "delivery-enablement-webhooks-read-secret-github-key",
+            managedPolicyName: "delivery-enablement-webhooks-read-secrets",
             statements: [
                 new iam.PolicyStatement({
                     effect: iam.Effect.ALLOW,
@@ -30,7 +30,8 @@ export class Lambda {
                         "secretsmanager:GetSecretValue"
                     ],
                     resources: [
-                        secrets.webhooksGitHubKey.secretArn
+                        secrets.webhooksGitHubKey.secretArn,
+                        secrets.webhooksStacksKey.secretArn
                     ]
                 })
             ]
