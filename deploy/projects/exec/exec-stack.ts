@@ -11,9 +11,9 @@ export class ExecStack extends cdk.Stack {
 
         var stack = this;
 
-        var directoryTasks = path.join(__dirname, "..", "..", "..", "projects", "exec", "tasks");
+        var directoryExec = path.join(__dirname, "..", "..", "..", "projects", "exec");
         var taskCreateDockerImage = new ecrAssets.DockerImageAsset(stack, "Docker/TaskCreate", {
-            directory: directoryTasks,
+            directory: directoryExec,
             file: "create.dockerfile"
         });
 
@@ -21,9 +21,12 @@ export class ExecStack extends cdk.Stack {
             taskRole: undefined, // TODO
             executionRole: undefined, // TODO
         });
-        taskCreateDefinition.addContainer("Create", { 
+        taskCreateDefinition.addContainer("Create", {
             image: ecs.ContainerImage.fromDockerImageAsset(taskCreateDockerImage),
             logging: ecs.LogDrivers.awsLogs({ streamPrefix: 'delivery-enablement-create', logRetention: 1 }),
+            environment: {
+                "GITHUB_OAUTH_TOKEN": cdk.SecretValue.secretsManager("GitHub-OAuth-Token").unsafeUnwrap().toString()
+            }
          })
 
         var cluster = new ecs.Cluster(stack, "Ecs/Cluster", {
@@ -31,6 +34,7 @@ export class ExecStack extends cdk.Stack {
             vpc: undefined, // TODO
         });
         new ecs.FargateService(stack, "Fargate/Service-Create", {
+            serviceName: "delivery-enablement-create",
             cluster: cluster,
             taskDefinition: taskCreateDefinition,
             desiredCount: 0
