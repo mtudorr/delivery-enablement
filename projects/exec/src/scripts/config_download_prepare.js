@@ -20,5 +20,3 @@ if (gitHubResponse.encoding !== "base64") {
 
 const buffer = Buffer.from(gitHubResponse.content, "base64");
 fs.writeFileSync(path.join("delivery-enablement", "de.config.json"), buffer);
-
-process.exit(0);

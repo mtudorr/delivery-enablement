@@ -1,13 +1,7 @@
 #!/bin/bash
 
-npm ci
-if [[ $? -ne 0 ]]; then
-    echo "Could not install node modules"
-    exit -1
-fi
-
-npx cdk deploy --context repo=$REPO --context branch=$BRANCH --context config=/delivery-enablement/de.config.json --require-approval never
-retCdkDeploy = $?
+npx cdk deploy --context repo=$REPO --context branch=$BRANCH --context config=/delivery-enablement/de.config.json --context envLabel=$ENV_LABEL --outputs-file /delivery-enablement/cdk.output.json --require-approval never
+retCdkDeploy=$?
 
 if [[ $retCdkDeploy -eq 1 ]]; then
     echo "Pipeline deployment ignored"
@@ -17,4 +11,10 @@ fi
 if [[ $retCdkDeploy -ne 0 ]]; then
     echo "Pipeline deployment failed"
     exit -2
+fi
+
+node /delivery-enablement/scripts/cdk_deploy_env.js
+if [[ $? -ne 0 ]]; then
+    echo "Could not prepare script to load stack outputs in env variables"
+    exit -1
 fi

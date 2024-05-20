@@ -2,23 +2,60 @@ import * as cdk from "aws-cdk-lib";
 import * as codePipeline from "aws-cdk-lib/aws-codepipeline";
 import * as codePipelineActions from "aws-cdk-lib/aws-codepipeline-actions";
 import * as codeBuild from "aws-cdk-lib/aws-codebuild";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 import { DefinitionPipeline } from "./definition-pipeline";
 import { IdOfSource } from "./id-of-source";
+import { DefinitionEnvironment } from "./definition-environment";
 
 export class PipelineStack extends cdk.Stack {
-    public constructor(scope: Construct, id: string, props: cdk.StackProps, idOfSource: IdOfSource, config: DefinitionPipeline) {
+    public constructor(scope: Construct, id: string, props: cdk.StackProps, idOfSource: IdOfSource, config: DefinitionPipeline, 
+            environment: DefinitionEnvironment, environmentLabel: string) {
         super(scope, id, props);
+
+        const stack = this;
 
         const artifactByStageId = new Map<string, codePipeline.Artifact>();
         const idOfSourceStage = "Source";
         
-        const artifactSource = new codePipeline.Artifact(`DE-Pipeline-${idOfSource}-Source`);
+        const artifactSource = new codePipeline.Artifact(`DE-Pipeline-${environmentLabel}-Source`);
         artifactByStageId.set(idOfSourceStage, artifactSource);
 
-        const pipeline = new codePipeline.Pipeline(this, `DE-Pipeline-${idOfSource}`,
+        const buildRole = new iam.Role(stack, `Iam/DE-Pipeline-${environmentLabel}-Build-Role`, {
+            roleName: `de-pipeline-${environmentLabel}-build-role`,
+            assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
+        });
+        buildRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess"));
+
+        const environmentVariables: Record<string, codeBuild.BuildEnvironmentVariable> = {};
+        const environmentVariablesInStage = environment.environmentVariables ?? {};
+        for (const name in environmentVariablesInStage) {
+            environmentVariables[name] = {
+                type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
+                value: environmentVariablesInStage[name]
+            };
+        }
+
+        environmentVariables["ENV"] = {
+            type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: environmentLabel
+        };
+        environmentVariables["GITHUB_OAUTH_TOKEN"] = {
+            type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
+            value: "GitHub-OAuth-Token"
+        };
+
+        const environmentSecretsInStage = environment.environmentSecrets ?? [];
+        for (const name in environmentSecretsInStage) {
+            environmentVariables[name] = {
+                type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
+                value: environmentSecretsInStage[name]
+            };
+        }
+
+        const pipeline = new codePipeline.Pipeline(stack, `DE-Pipeline-${environmentLabel}`,
         {
-            pipelineName: `de-pipeline-${idOfSource}`,
+            pipelineName: `de-pipeline-${environmentLabel}`,
         });
         pipeline.addStage({
             stageName: "Source",
@@ -40,29 +77,7 @@ export class PipelineStack extends cdk.Stack {
             const input = artifactByStageId.get(idOfInputStage);
             if (input === undefined) {
                 throw new Error(`The out of stage ${idOfInputStage} is not available`);
-            }
-
-            const environmentVariables: Record<string, codeBuild.BuildEnvironmentVariable> = {};
-            const environmentVariablesInStage = stage.environmentVariables ?? {};
-            for (const name in environmentVariablesInStage) {
-                environmentVariables[name] = {
-                    type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
-                    value: environmentVariablesInStage[name]
-                };
-            }
-
-            environmentVariables["GitHub-OAuth-Token"] = {
-                type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
-                value: "GitHub-OAuth-Token"
-            };
-
-            const environmentSecretsInStage = stage.environmentSecrets ?? {};
-            for (const name in environmentSecretsInStage) {
-                environmentVariables[name] = {
-                    type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
-                    value: environmentSecretsInStage[name]
-                };
-            }
+            }           
 
             const phases: Record<string, object> = {};
             for (const step of stage.steps) {
@@ -71,8 +86,8 @@ export class PipelineStack extends cdk.Stack {
                 }
             }
 
-            const artifact = new codePipeline.Artifact(`DE-Pipeline-${idOfSource}-${stage.id}`);
-            artifactByStageId.set(idOfSourceStage, artifact);
+            const artifact = new codePipeline.Artifact(`DE-Pipeline-${environmentLabel}-${stage.id}`);
+            artifactByStageId.set(stage.id, artifact);
 
             pipeline.addStage({
                 stageName: stage.id,
@@ -80,8 +95,9 @@ export class PipelineStack extends cdk.Stack {
                     new codePipelineActions.CodeBuildAction({
                         actionName: stage.id,
                         input,
-                        project: new codeBuild.Project(this, `DE-Build-Project-${idOfSource}-${stage.id}`, {
-                            projectName: `de-build-project-${idOfSource}-${stage.id}`,
+                        project: new codeBuild.Project(stack, `DE-Build-Project-${environmentLabel}-${stage.id}`, {
+                            role: buildRole,
+                            projectName: `de-build-project-${environmentLabel}-${stage.id}`,
                             environment: {
                                 buildImage: codeBuild.LinuxBuildImage.STANDARD_7_0,
                                 computeType: codeBuild.ComputeType.SMALL,
@@ -89,7 +105,10 @@ export class PipelineStack extends cdk.Stack {
                             },
                             buildSpec: codeBuild.BuildSpec.fromObject({
                                 "version": "0.2",
-                                phases
+                                phases,
+                                "artifacts": {
+                                    "files": stage.outputFiles ?? []
+                                }
                             }),
                         }),
                         outputs: [
@@ -97,7 +116,15 @@ export class PipelineStack extends cdk.Stack {
                         ]
                     })
                 ]
-            })
+            });
         }
+
+        new cdk.CfnOutput(stack, 'PipelineName', {
+            value: pipeline.pipelineName,
+        });
+        
+        new cdk.CfnOutput(stack, 'PipelineArn', {
+            value: pipeline.pipelineArn,
+        });
     }
 }

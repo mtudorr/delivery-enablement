@@ -24,11 +24,12 @@ if (branch === undefined || branch.length === 0) {
     throw new Error("Config not specified");
 }
 
+const environmentLabel = app.node.tryGetContext("envLabel");
 const idOfSource = new IdOfSource(repo, branch);
 
 const configFileContent = readFileSync(configFileName, { encoding: "utf8" });
 const config = new Config(idOfSource,
-    schemaDefinitionConfiguration.parse(JSON.parse(configFileContent)));
+    schemaDefinitionConfiguration.parse(JSON.parse(configFileContent)), environmentLabel);
 
 AwsContext.acquire().then(aws => {
     if (config.targetAwsAccountId !== aws.accountId) {
@@ -36,12 +37,12 @@ AwsContext.acquire().then(aws => {
         process.exit(1);
     }
     
-    new PipelineStack(app, `DE-Stack-${idOfSource}`, {
+    new PipelineStack(app, `DE-Stack-${config.targetEnvironmentLabel}`, {
         env: {
             account: config.targetAwsAccountId,
             region: config.targetAwsRegion
         }
-    }, idOfSource, config.all.pipeline);
+    }, idOfSource, config.all.pipeline, config.targetEnvironment, config.targetEnvironmentLabel);
 })
 .catch(e => {
     console.error(e);

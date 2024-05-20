@@ -10,7 +10,7 @@ fi
 
 cd /delivery-enablement/cdk
 /delivery-enablement/scripts/cdk_deploy.sh
-retCdkDeploy = $?
+retCdkDeploy=$?
 
 if [[ $retCdkDeploy -eq 1 ]]; then
     echo "Operation ignored"
@@ -22,17 +22,10 @@ if [[ $retCdkDeploy -ne 0 ]]; then
     exit -2
 fi
 
-/delivery-enablement/scripts/cdk_synth.sh
-retCdkSynth = $?
-
-if [[ $retCdkSynth -eq 1 ]]; then
-    echo "Operation ignored"
-    exit 1
-fi
-
-if [[ $retCdkSynth -ne 0 ]]; then
-    echo "Could not synth pipeline"
-    exit -2
+. /delivery-enablement/cdk.output.env.sh
+if [[ $? -ne 0 ]]; then
+    echo "Could not load stack output to env variables"
+    exit -1
 fi
 
 cd /
