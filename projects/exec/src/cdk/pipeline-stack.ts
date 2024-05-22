@@ -18,11 +18,11 @@ export class PipelineStack extends cdk.Stack {
         const artifactByStageId = new Map<string, codePipeline.Artifact>();
         const idOfSourceStage = "Source";
         
-        const artifactSource = new codePipeline.Artifact(`DE-Pipeline-${environmentLabel}-Source`);
+        const artifactSource = new codePipeline.Artifact(`DE-Pipeline-${idOfSource.repo}-${environmentLabel}-Source`);
         artifactByStageId.set(idOfSourceStage, artifactSource);
 
-        const buildRole = new iam.Role(stack, `Iam/DE-Pipeline-${environmentLabel}-Build-Role`, {
-            roleName: `de-pipeline-${environmentLabel}-build-role`,
+        const buildRole = new iam.Role(stack, `Iam/DE-Pipeline-${idOfSource.repo}-${environmentLabel}-Build-Role`, {
+            roleName: `de-pipeline-${idOfSource.repo}-${environmentLabel}-build-role`,
             assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com")
         });
         buildRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("AdministratorAccess"));
@@ -53,9 +53,9 @@ export class PipelineStack extends cdk.Stack {
             };
         }
 
-        const pipeline = new codePipeline.Pipeline(stack, `DE-Pipeline-${environmentLabel}`,
+        const pipeline = new codePipeline.Pipeline(stack, `DE-Pipeline-${idOfSource.repo}-${environmentLabel}`,
         {
-            pipelineName: `de-pipeline-${environmentLabel}`,
+            pipelineName: `de-pipeline-${idOfSource.repo}-${environmentLabel}`,
         });
         pipeline.addStage({
             stageName: "Source",
@@ -86,7 +86,7 @@ export class PipelineStack extends cdk.Stack {
                 }
             }
 
-            const artifact = new codePipeline.Artifact(`DE-Pipeline-${environmentLabel}-${stage.id}`);
+            const artifact = new codePipeline.Artifact(`DE-Pipeline-${idOfSource.repo}-${environmentLabel}-${stage.id}`);
             artifactByStageId.set(stage.id, artifact);
 
             pipeline.addStage({
@@ -95,9 +95,9 @@ export class PipelineStack extends cdk.Stack {
                     new codePipelineActions.CodeBuildAction({
                         actionName: stage.id,
                         input,
-                        project: new codeBuild.Project(stack, `DE-Build-Project-${environmentLabel}-${stage.id}`, {
+                        project: new codeBuild.Project(stack, `DE-Build-Project-${idOfSource.repo}-${environmentLabel}-${stage.id}`, {
                             role: buildRole,
-                            projectName: `de-build-project-${environmentLabel}-${stage.id}`,
+                            projectName: `de-build-project-${idOfSource.repo}-${environmentLabel}-${stage.id}`,
                             environment: {
                                 buildImage: codeBuild.LinuxBuildImage.STANDARD_7_0,
                                 computeType: codeBuild.ComputeType.SMALL,

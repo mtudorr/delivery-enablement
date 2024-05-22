@@ -34,10 +34,10 @@ const config = new Config(idOfSource,
 AwsContext.acquire().then(aws => {
     if (config.targetAwsAccountId !== aws.accountId) {
         console.log("Different AWS Account targeted");
-        process.exit(1);
+        process.exit(100);
     }
     
-    new PipelineStack(app, `DE-Stack-${config.targetEnvironmentLabel}`, {
+    new PipelineStack(app, `DE-Stack-${idOfSource.repo}-${config.targetEnvironmentLabel}`, {
         env: {
             account: config.targetAwsAccountId,
             region: config.targetAwsRegion

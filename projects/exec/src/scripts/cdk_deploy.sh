@@ -1,9 +1,11 @@
 #!/bin/bash
 
+echo "INFO: Starting deploying pipeline"
+
 npx cdk deploy --context repo=$REPO --context branch=$BRANCH --context config=/delivery-enablement/de.config.json --context envLabel=$ENV_LABEL --outputs-file /delivery-enablement/cdk.output.json --require-approval never
 retCdkDeploy=$?
 
-if [[ $retCdkDeploy -eq 1 ]]; then
+if [[ $retCdkDeploy -eq 100 ]]; then
     echo "Pipeline deployment ignored"
     exit 1
 fi

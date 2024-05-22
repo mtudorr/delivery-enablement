@@ -1,9 +1,10 @@
-import { Duration } from "aws-cdk-lib";
+import { Duration, Fn } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as nodeJsLambda from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
 import { DynamoDb } from "./dynamo-db";
+import { ExecStack } from "../exec/exec-stack";
 
 const MemoryB = 1024;
 const TimeoutB = Duration.seconds(10);
@@ -17,7 +18,7 @@ export class Lambda {
     public readonly functionBuild: nodeJsLambda.NodejsFunction;
     public readonly functionRemove: nodeJsLambda.NodejsFunction;
 
-    public constructor(scope: Construct, dynamoDb: DynamoDb) {
+    public constructor(scope: Construct, execStack: ExecStack, dynamoDb: DynamoDb) {
         const dirStacks = path.join(__dirname, "..", "..", "..", "projects", "stacks");
 
         const roleExecution = new iam.Role(scope, "Iam/Lambda-Execution", {
@@ -42,10 +43,41 @@ export class Lambda {
                 })
             ]
         }));
+        roleExecution.addManagedPolicy(new iam.ManagedPolicy(scope, "Iam/Run-Exec-Tasks", {
+            managedPolicyName: "delivery-enablement-stacks-run-exec-tasks",
+            statements: [
+                new iam.PolicyStatement({
+                    effect: iam.Effect.ALLOW,
+                    actions: [
+                        "ecs:RunTask"
+                    ],
+                    resources: [
+                        "arn:aws:ecs:*:*:task-definition/DE-*"
+                    ]
+                }),
+                new iam.PolicyStatement({
+                    effect: iam.Effect.ALLOW,
+                    actions: [
+                        "iam:GetRole",
+                        "iam:PassRole"
+                    ],
+                    resources: [
+                        Fn.importValue(execStack.outputTaskRole),
+                        Fn.importValue(execStack.outputTaskExecutionRole)
+                    ]
+                })
+            ]
+        }));
 
         const environment: Record<string, string> = {
             "TABLE_STACKS_NAME": dynamoDb.tableStacks.tableName,
-            "TABLE_STACKS_ARN": dynamoDb.tableStacks.tableArn
+            "TABLE_STACKS_ARN": dynamoDb.tableStacks.tableArn,
+            "EXEC_CLUSTER_NAME": Fn.importValue(execStack.outputClusterName).toString(),
+            "EXEC_CLUSTER_ARN": Fn.importValue(execStack.outputClusterArn).toString(),
+            "EXEC_TASK_CREATE_NAME": Fn.importValue(execStack.outputTaskCreateName).toString(),
+            "EXEC_CONTAINER_CREATE_NAME": Fn.importValue(execStack.outputContainerCreateName).toString(),
+            "EXEC_SECURITY_GROUP_ID": Fn.importValue(execStack.outputSecurityGroupId).toString(),
+            "EXEC_SUBNET_ID": Fn.importValue(execStack.outputSubnetId).toString(),
         };
 
         this.functionAcknowledgeCreate = new nodeJsLambda.NodejsFunction(scope,

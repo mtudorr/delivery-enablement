@@ -9,14 +9,14 @@ export class Config {
     public readonly targetEnvironment: DefinitionEnvironment;
     public readonly targetEnvironmentLabel: string;
 
-    public constructor(idOfSource: IdOfSource, all: DefinitionConfiguration, envionmentLabel: string | undefined) {
+    public constructor(idOfSource: IdOfSource, all: DefinitionConfiguration, envionmentLabel: string | null | undefined) {
         this.idOfSource = idOfSource;
         this.all = all;
         const targetEnvironment = this.determineTargetEnvironment(idOfSource, all);
 
         this.targetEnvironment = targetEnvironment.env;
         const targetEnvironmentLabel = targetEnvironment.envStable?.label ?? envionmentLabel;
-        if (targetEnvironmentLabel === undefined) {
+        if (targetEnvironmentLabel === undefined || targetEnvironmentLabel === null) {
             throw new Error("Could not determine the environment label");
         }
 
