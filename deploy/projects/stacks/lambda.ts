@@ -76,6 +76,8 @@ export class Lambda {
             "EXEC_CLUSTER_ARN": Fn.importValue(execStack.outputClusterArn).toString(),
             "EXEC_TASK_CREATE_NAME": Fn.importValue(execStack.outputTaskCreateName).toString(),
             "EXEC_CONTAINER_CREATE_NAME": Fn.importValue(execStack.outputContainerCreateName).toString(),
+            "EXEC_TASK_BUILD_NAME": Fn.importValue(execStack.outputTaskBuildName).toString(),
+            "EXEC_CONTAINER_BUILD_NAME": Fn.importValue(execStack.outputContainerBuildName).toString(),
             "EXEC_SECURITY_GROUP_ID": Fn.importValue(execStack.outputSecurityGroupId).toString(),
             "EXEC_SUBNET_ID": Fn.importValue(execStack.outputSubnetId).toString(),
         };
@@ -145,5 +147,17 @@ export class Lambda {
                 role: roleExecution,
                 environment
             });
+
+        const functionAcknowledgeOutcomeNotification = new nodeJsLambda.NodejsFunction(scope,
+            "Lambda/Stacks-Outcome-Notification-Acknowledge", {
+                functionName: "delivery-enablement-stacks-ack-outcome-notification",
+                memorySize: MemoryB,
+                timeout: TimeoutB,
+                entry: path.join(dirStacks, "acknowledge_outcome_notification.ts"),
+                handler: "handler",
+                role: roleExecution,
+                environment
+            });
+        
     }
 }

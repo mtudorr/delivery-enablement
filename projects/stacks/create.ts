@@ -1,19 +1,19 @@
 import { APIGatewayProxyHandler, APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { handlerBase } from "./handler-base";
+import { handlerBaseApi } from "./handler-base-api";
 import { Environment } from "./platform/environment";
 import { StackPersistence } from "./persistence/stack-peristence";
 import { IdOfStack } from "./domain/id-of-stack";
 import { StackStateEnum } from "./domain/stack-state-enum";
 import { Version } from "./persistence/version";
 import { Stack } from "./domain/stack";
-import { Exec } from "./platform/exec";
+import { ExecDispatch } from "./platform/exec-dispatch";
 
 const environment = new Environment();
 const stackPersistence = new StackPersistence(environment);
-const exec = new Exec(environment);
+const execDispatch = new ExecDispatch(environment);
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
-    return await handlerBase(async (): Promise<APIGatewayProxyResult> => {
+    return await handlerBaseApi(async (): Promise<APIGatewayProxyResult> => {
         const valueOfRepoName = event.pathParameters?.repo_name;
         if (valueOfRepoName === undefined) {
             return { statusCode: 400, body: `repo_name: value not provided` };
@@ -24,28 +24,24 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
             return { statusCode: 400, body: `branch_name: value not provided` };
         }
 
-        // TODO: Perist environmentLabel in stack to use in follow-up operations
         const environmentLabel = event.queryStringParameters !== null ? event.queryStringParameters["env"] ?? null : null;
 
         const idOfStack = new IdOfStack(valueOfRepoName, valueOfBranchName);
         const recordOfStack = await stackPersistence.retrieveOrNull(idOfStack);
-        if (recordOfStack === null) {
-            await exec.create(valueOfRepoName, valueOfBranchName, environmentLabel);
-            await stackPersistence.save({ repo: valueOfRepoName, branch: valueOfBranchName,
-                state: StackStateEnum.CREATING, version: Version.none() });
-        }
-        else {
-            const stack = new Stack(idOfStack, recordOfStack.state, recordOfStack.version);
-            const stackStateBefore = stack.state;
-            stack.create();
+        const stateBefore = recordOfStack?.state ?? null;
 
-            if (stack.state === StackStateEnum.CREATING && stackStateBefore !== StackStateEnum.CREATING) {
-                await exec.create(valueOfRepoName, valueOfBranchName, environmentLabel);
-            }
-
-            await stackPersistence
-                .save({ repo: stack.id.repo, branch: stack.id.branch, state: stack.state, version: stack.version });
+        const stack = recordOfStack 
+            ? new Stack(idOfStack, recordOfStack.state, recordOfStack.environmentLabel, recordOfStack.version)
+            : new Stack(idOfStack, StackStateEnum.CREATING, environmentLabel, Version.none());
+        if (stack.environmentLabel !== environmentLabel) {
+            return { statusCode: 400, body: `env: must be ${environmentLabel} for ${idOfStack.repo}/${idOfStack.branch}` };
         }
+        stack.create();
+        
+        await execDispatch.for(idOfStack.repo, idOfStack.branch, stack.environmentLabel, stateBefore, stack.state);
+        await stackPersistence
+            .save({ repo: stack.id.repo, branch: stack.id.branch, 
+                state: stack.state, environmentLabel: stack.environmentLabel, version: stack.version });
     
         return { statusCode: 200, body: "" }
     });

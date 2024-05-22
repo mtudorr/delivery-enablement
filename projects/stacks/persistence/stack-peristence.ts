@@ -37,7 +37,8 @@ export class StackPersistence {
             res.Item.Repo.S === undefined ||
             res.Item.Branch.S === undefined ||
             res.Item.State.S === undefined ||
-            res.Item.Version.S === undefined
+            res.Item.Version.S === undefined ||
+            res.Item.EnvironmentLabel.S === undefined
         ) {
             return null;
         }
@@ -48,7 +49,8 @@ export class StackPersistence {
                 repo: res.Item.Repo.S,
                 branch: res.Item.Branch.S,
                 state: valueOfState,
-                version: res.Item.Version.S
+                version: res.Item.Version.S,
+                environmentLabel: res.Item.EnvironmentLabel.S === "$NULL" ? null : res.Item.EnvironmentLabel.S
             }
         }
 
@@ -62,6 +64,7 @@ export class StackPersistence {
                 Repo: { S: record.repo },
                 Branch: { S: record.branch },
                 State: { S: record.state },
+                EnvironmentLabel: { S: record.environmentLabel ?? "$NULL" },
                 Version: { S: Version.new() }
             },
             ConditionExpression: "attribute_not_exists(Repo) or Version = :version",

@@ -9,6 +9,16 @@ export class Exec {
     }
 
     public async create(repo: string, branch: string, environmentLabel: string | null): Promise<void> {
+        await this.runTask(this.enviornment.get("EXEC_TASK_CREATE_NAME"), this.enviornment.get("EXEC_CONTAINER_CREATE_NAME"),
+            this.prepareEnv(repo, branch, environmentLabel));
+    }
+
+    public async build(repo: string, branch: string, environmentLabel: string | null): Promise<void> {
+        await this.runTask(this.enviornment.get("EXEC_TASK_BUILD_NAME"), this.enviornment.get("EXEC_CONTAINER_BUILD_NAME"),
+            this.prepareEnv(repo, branch, environmentLabel));
+    }
+
+    private prepareEnv(repo: string, branch: string, environmentLabel: string | null): KeyValuePair[] {
         const env: KeyValuePair[] = [
             { name: "REPO", value: repo },
             { name: "BRANCH", value: branch }
@@ -18,10 +28,10 @@ export class Exec {
             env.push({ name: "ENV_LABEL", value: environmentLabel });
         }
         
-        await this.runTask(this.enviornment.get("EXEC_TASK_CREATE_NAME"), env);
+        return env;
     }
 
-    private async runTask(taskDefinition: string, env: readonly KeyValuePair[]): Promise<void> {
+    private async runTask(taskDefinition: string, taskContainerName: string, env: readonly KeyValuePair[]): Promise<void> {
         const client = new ECSClient();
         const cmd = new RunTaskCommand({
             taskDefinition: taskDefinition,
@@ -31,7 +41,7 @@ export class Exec {
                 containerOverrides: [
                     {
                         environment: [ ...env ],
-                        name: this.enviornment.get("EXEC_CONTAINER_CREATE_NAME")
+                        name: taskContainerName
                     }
                 ],
             },

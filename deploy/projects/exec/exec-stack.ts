@@ -13,10 +13,12 @@ export class ExecStack extends cdk.Stack {
     public readonly outputClusterArn = "DE-Output-Exec-Cluster-Arn";
     public readonly outputClusterName = "DE-Output-Exec-Cluster-Name";
     public readonly outputTaskCreateName = "DE-Output-Exec-Task-Create-Name";
+    public readonly outputTaskBuildName = "DE-Output-Exec-Task-Build-Name";
     public readonly outputSnsTopicArn = "DE-Output-Exec-Sns-Topic-Arn";
     public readonly outputTaskRole = "DE-Output-Exec-Iam-Task-Role-Arn";
     public readonly outputTaskExecutionRole = "DE-Output-Exec-Iam-Task-Execution-Role-Arn";
     public readonly outputContainerCreateName = "DE-Output-Exec-Container-Create-Name";
+    public readonly outputContainerBuildName = "DE-Output-Exec-Container-Build-Name";
     public readonly outputSecurityGroupId = "DE-Output-Exec-Security-Group-Id";
     public readonly outputSubnetId = "DE-Output-Exec-Subnet-Id";
 
@@ -30,11 +32,6 @@ export class ExecStack extends cdk.Stack {
             topicName: "delivery-enablement-notifications"
         });
 
-        const taskCreateDockerImage = new ecrAssets.DockerImageAsset(stack, "Docker/TaskCreate", {
-            directory: directoryExec,
-            file: "create.dockerfile"
-        });
-
         const taskRole = new iam.Role(stack, "Iam/TaskRole", {
             roleName: "delivery-enablement-exec-task-role",
             assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com")
@@ -46,24 +43,6 @@ export class ExecStack extends cdk.Stack {
             assumedBy: new iam.ServicePrincipal("ecs-tasks.amazonaws.com")
         });
         taskExecutionRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"));
-
-        const taskCreateDefinition = new ecs.FargateTaskDefinition(stack, "Fargate/TaskDefinition-Create", {
-            family: "DE-Create",
-            taskRole: taskRole,
-            executionRole: taskExecutionRole,
-            cpu: 1024,
-            memoryLimitMiB: 2048
-        });
-        const containerCreate = taskCreateDefinition.addContainer("Create", {
-            containerName: "DE-Create",
-            image: ecs.ContainerImage.fromDockerImageAsset(taskCreateDockerImage),
-            logging: ecs.LogDrivers.awsLogs({ streamPrefix: 'delivery-enablement-create', logRetention: 1 }),
-            environment: {
-                "GITHUB_OAUTH_TOKEN": cdk.SecretValue.secretsManager("GitHub-OAuth-Token").unsafeUnwrap().toString(),
-                "SNS_NOTIFICATIONS_ARN": snsTopic.topicArn,
-                "SNS_NOTIFICATIONS_NAME": snsTopic.topicName
-            }
-        });
 
         const vpc = ec2.Vpc.fromLookup(stack, "Vpc/Default", {
             vpcId: config.vpcId
@@ -87,11 +66,12 @@ export class ExecStack extends cdk.Stack {
             allowAllOutbound: true
         });
 
-        new cdk.CfnOutput(stack, "DE-Output-Exec-Task-Create-Name", {
-            exportName: this.outputTaskCreateName,
-            value: taskCreateDefinition.family
-        });
-
+        this.createTask(stack, "Create", directoryExec, "create.dockerfile", 
+            taskRole, taskExecutionRole, snsTopic, this.outputTaskCreateName, this.outputContainerCreateName);
+        
+        this.createTask(stack, "Build", directoryExec, "build.dockerfile",
+            taskRole, taskExecutionRole, snsTopic, this.outputTaskBuildName, this.outputContainerBuildName);
+            
         new cdk.CfnOutput(stack, "DE-Output-Exec-Cluster-Name", {
             exportName: this.outputClusterName,
             value: cluster.clusterName
@@ -117,11 +97,6 @@ export class ExecStack extends cdk.Stack {
             value: taskExecutionRole.roleArn
         });
 
-        new cdk.CfnOutput(stack, "DE-Output-Exec-Container-Create-Name", {
-            exportName: this.outputContainerCreateName,
-            value: containerCreate.containerName
-        });
-
         new cdk.CfnOutput(stack, "DE-Output-Exec-Security-Group-Id", {
             exportName: this.outputSecurityGroupId,
             value: securityGroup.securityGroupId
@@ -130,6 +105,42 @@ export class ExecStack extends cdk.Stack {
         new cdk.CfnOutput(stack, "DE-Output-Exec-Subnet-Id", {
             exportName: this.outputSubnetId,
             value: subnet.subnetId
+        });
+    }
+
+    private createTask(stack: this, taskName: string, directoryExec: string, dockerFileName: string, taskRole: iam.Role, 
+        taskExecutionRole: iam.Role, snsTopic: sns.Topic, outputTaskName: string, outputTaskContainerName: string
+    ) {
+        const taskDockerImage = new ecrAssets.DockerImageAsset(stack, `Docker/Task${taskName}`, {
+            directory: directoryExec,
+            file: dockerFileName
+        });
+        const taskDefinition = new ecs.FargateTaskDefinition(stack, `Fargate/TaskDefinition-${taskName}`, {
+            family: `DE-${taskName}`,
+            taskRole: taskRole,
+            executionRole: taskExecutionRole,
+            cpu: 1024,
+            memoryLimitMiB: 2048
+        });
+        const containerCreate = taskDefinition.addContainer(taskName, {
+            containerName: `DE-${taskName}`,
+            image: ecs.ContainerImage.fromDockerImageAsset(taskDockerImage),
+            logging: ecs.LogDrivers.awsLogs({ streamPrefix: `delivery-enablement-${taskName.toLowerCase()}`, logRetention: 1 }),
+            environment: {
+                "GITHUB_OAUTH_TOKEN": cdk.SecretValue.secretsManager("GitHub-OAuth-Token").unsafeUnwrap().toString(),
+                "SNS_NOTIFICATIONS_ARN": snsTopic.topicArn,
+                "SNS_NOTIFICATIONS_NAME": snsTopic.topicName
+            }
+        });
+
+        new cdk.CfnOutput(stack, outputTaskName, {
+            exportName: outputTaskName,
+            value: taskDefinition.family
+        });
+
+        new cdk.CfnOutput(stack, outputTaskContainerName, {
+            exportName: outputTaskContainerName,
+            value: containerCreate.containerName
         });
     }
 }

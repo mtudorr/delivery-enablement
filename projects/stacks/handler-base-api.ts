@@ -2,7 +2,7 @@ import { APIGatewayProxyResult } from "aws-lambda";
 import { OnConflictRetry } from "./platform/on-conflict-retry";
 import { ErrorConflict } from "./platform/error-conflict";
 
-export const handlerBase = async (fn: () => Promise<APIGatewayProxyResult>): Promise<APIGatewayProxyResult> => {
+export const handlerBaseApi = async (fn: () => Promise<APIGatewayProxyResult>): Promise<APIGatewayProxyResult> => {
     try {
         return await new OnConflictRetry<APIGatewayProxyResult>(fn).execute();
     }

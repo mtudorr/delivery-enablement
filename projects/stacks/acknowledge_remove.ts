@@ -1,8 +1,8 @@
 import { APIGatewayProxyHandler, APIGatewayEvent, APIGatewayProxyResult } from "aws-lambda";
-import { handlerBase } from "./handler-base";
+import { handlerBaseApi } from "./handler-base-api";
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): Promise<APIGatewayProxyResult> => {
-    return await handlerBase(async () => {
+    return await handlerBaseApi(async () => {
         console.log(event);
     
         return {
