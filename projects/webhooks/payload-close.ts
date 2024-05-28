@@ -1,6 +1,16 @@
+import { Repository } from "./github-repository";
+
 export type PayloadClose = {
     action: string;
-    pull_request: object
+    pull_request: {
+        id: number,
+        number: number,
+        state: string,
+        head: {
+            ref: string
+        }
+    },
+    repository: Repository;
 };
 
 export const isPayloadClose = (value: unknown): value is PayloadClose => {
