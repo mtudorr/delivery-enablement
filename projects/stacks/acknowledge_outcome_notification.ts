@@ -5,6 +5,7 @@ import { Environment } from "./platform/environment";
 import { IdOfStack } from "./domain/id-of-stack";
 import { Stack } from "./domain/stack";
 import { ExecDispatch } from "./platform/exec-dispatch";
+import { AbstractAcknowledgeOutcomeHandler } from "./acknowledge_outcome_handler";
 
 const environment = new Environment();
 const stackPersistence = new StackPersistence(environment);
@@ -28,8 +29,9 @@ export const handler: SNSHandler = async (event: SNSEvent): Promise<void> => {
     const stateBefore = recordOfStack?.state ?? null;
 
     const stack = new Stack(idOfStack, recordOfStack.state, recordOfStack.environmentLabel, recordOfStack.version);
-    // TODO: User chain of responsibility to call the correct trigger based on the outcome
-    stack.acknowledgeCreate();
+
+    const acknowledgeOutcomeHandlerChain = AbstractAcknowledgeOutcomeHandler.initializeChain();
+    acknowledgeOutcomeHandlerChain.handle(outcomeNotification.action, outcomeNotification.outcome, stack);
 
     await execDispatch.for(idOfStack.repo, idOfStack.branch, stack.environmentLabel, stateBefore, stack.state);
     await stackPersistence

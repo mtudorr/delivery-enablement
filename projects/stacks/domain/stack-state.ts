@@ -23,6 +23,24 @@ export abstract class StackState {
 
     public abstract remove(): void;
 
+    public abstract acknowledgeCreate(): void;
+
+    public abstract acknowledgeCreateFailed(): void;
+
+    public abstract acknowledgeCreateIgnored(): void;
+
+    public abstract acknowledgeBuild(): void;
+
+    public abstract acknowledgeBuildFailed(): void;
+
+    public abstract acknowledgeBuildIgnored(): void;
+
+    public abstract acknowledgeRemove(): void;
+
+    public abstract acknowledgeRemoveFailed(): void;
+
+    public abstract acknowledgeRemoveIgnored(): void;
+
     protected transitionTo(state: StackStateEnum): void {
         this._onTransition.next(new StackTransition(state));
     }

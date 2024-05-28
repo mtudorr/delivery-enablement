@@ -17,4 +17,37 @@ export class StackStatePendingCreate extends StackState {
     public remove(): void {
         this.transitionTo(StackStateEnum.REMOVED);
     }
+
+    public override acknowledgeCreate(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public override acknowledgeCreateFailed(): void {
+        throw new Error("Method not implemented.");
+    }
+    public override acknowledgeCreateIgnored(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public override acknowledgeBuild(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public override acknowledgeBuildFailed(): void {
+        throw new Error("Method not implemented.");
+    }
+    public override acknowledgeCreateBuildIgnored(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public override acknowledgeRemove(): void {
+        throw new Error("Method not implemented.");
+    }
+
+    public override acknowledgeRemoveFailed(): void {
+        throw new Error("Method not implemented.");
+    }
+    public override acknowledgeRemoveIgnored(): void {
+        throw new Error("Method not implemented.");
+    }
 }

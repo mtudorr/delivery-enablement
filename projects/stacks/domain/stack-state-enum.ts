@@ -2,6 +2,7 @@ export enum StackStateEnum {
     CREATING = "creating",
     READY = "ready",
     BUILDING = "building",
+    BUILT = "built",
     REMOVING = "removing",
     REMOVED = "removed",
     PENDING_BUILD = "pending_build",
