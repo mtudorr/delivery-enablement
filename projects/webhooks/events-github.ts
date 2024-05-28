@@ -47,40 +47,26 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
         };
     }
 
-    const body = JSON.parse(event.body);
-    const { repo, branch } = extractRepoAndBranchNames(body) ?? { repo: '', branch: '' };
 
-    if (isPayloadPush(body) && hasChanges(body)) {
-        console.log("Initiate build");
         const body: Payload = JSON.parse(event.body);
         const { repo, branch } = extractRepoAndBranchNames(body) ?? { repo: '', branch: '' };
         if (repo.length === 0 || branch.length === 0) {
             throw new Error(`Invalid repo and branch, found [${repo}][${branch}]`);
         }
 
-        await stacks.build(repo, branch);
-    } else {
-        console.log("Not a push event payload");
-    }
         if (isPayloadPush(body) && hasChanges(body)) {
             console.log("Initiate build");
 
-    if (isPayloadOpen(body)) {
-        console.log("Initiate create branch")
             await stacks.build(repo, branch);
         } else {
             console.log("Not a push event payload");
         }
 
-        // await stacks.create(repo, branch);
-    }
         if (isPayloadOpen(body)) {
             console.log("Initiate create branch")
             
             const tagOfPullRequest = extractPullRequestTag(body);
 
-    if (isPayloadClose(body)) {
-        console.log("Initiate close branch")
             if(tagOfPullRequest !== null) {
                 await stacks.create(repo, branch, tagOfPullRequest);
             }
@@ -89,19 +75,12 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
             }
         }
 
-        // await stacks.remove(repo, branch);
-    }
         if (isPayloadClose(body)) {
             console.log("Initiate close branch")
 
-    console.log("AUTHORIZED");
             await stacks.remove(repo, branch);
         }
 
-    return {
-        statusCode: 200,
-        body: ""
-    };
         console.log("AUTHORIZED");
 
         return {
