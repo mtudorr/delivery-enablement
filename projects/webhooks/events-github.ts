@@ -8,6 +8,7 @@ import { extractPullRequestTag } from "./pull-request";
 import { Environment } from "./platform/environment";
 import { Secrets } from "./platform/secrets";
 import { Stacks } from "./platform/stacks";
+import { Logging } from "./platform/logging";
 
 const environment = new Environment();
 const secrets = new Secrets();
@@ -47,9 +48,12 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
         };
     }
 
+    try {
 
+        // TODO: Avoid use of any
         const body: Payload = JSON.parse(event.body);
         const { repo, branch } = extractRepoAndBranchNames(body) ?? { repo: '', branch: '' };
+        
         if (repo.length === 0 || branch.length === 0) {
             throw new Error(`Invalid repo and branch, found [${repo}][${branch}]`);
         }
@@ -87,5 +91,11 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
             statusCode: 200,
             body: ""
         };
+    }
+    catch (e) {
+        const logging = await Logging.obtain(environment, secrets);
+        await logging.error(e);
+
+        throw e;
     }
 }

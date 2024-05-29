@@ -1,10 +1,12 @@
 import { Duration, Fn } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
+import * as sns from "aws-cdk-lib/aws-sns";
 import * as nodeJsLambda from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
 import { DynamoDb } from "./dynamo-db";
 import { ExecStack } from "../exec/exec-stack";
+import { Secrets } from "./secrets";
 
 const MemoryB = 1024;
 const TimeoutB = Duration.seconds(10);
@@ -18,7 +20,7 @@ export class Lambda {
     public readonly functionBuild: nodeJsLambda.NodejsFunction;
     public readonly functionRemove: nodeJsLambda.NodejsFunction;
 
-    public constructor(scope: Construct, execStack: ExecStack, dynamoDb: DynamoDb) {
+    public constructor(scope: Construct, execStack: ExecStack, dynamoDb: DynamoDb, secrets: Secrets) {
         const dirStacks = path.join(__dirname, "..", "..", "..", "projects", "stacks");
 
         const roleExecution = new iam.Role(scope, "Iam/Lambda-Execution", {
@@ -68,8 +70,23 @@ export class Lambda {
                 })
             ]
         }));
+        roleExecution.addManagedPolicy(new iam.ManagedPolicy(scope, "Iam/Read-Secrets", {
+            managedPolicyName: "delivery-enablement-stacks-read-secrets",
+            statements: [
+                new iam.PolicyStatement({
+                    effect: iam.Effect.ALLOW,
+                    actions: [
+                        "secretsmanager:GetSecretValue"
+                    ],
+                    resources: [
+                        secrets.rollbarAccessToken.secretArn
+                    ]
+                })
+            ]
+        }));
 
         const environment: Record<string, string> = {
+            "SECRET_NAME_ROLLBAR_ACCESS_TOKEN": secrets.rollbarAccessToken.secretName,
             "TABLE_STACKS_NAME": dynamoDb.tableStacks.tableName,
             "TABLE_STACKS_ARN": dynamoDb.tableStacks.tableArn,
             "EXEC_CLUSTER_NAME": Fn.importValue(execStack.outputClusterName).toString(),
@@ -159,5 +176,10 @@ export class Lambda {
                 environment
             });
         
+        new sns.Subscription(scope, "Sns/Subscription/Outcome-Notification", {
+            endpoint: functionAcknowledgeOutcomeNotification.functionArn,
+            protocol: sns.SubscriptionProtocol.LAMBDA,
+            topic: sns.Topic.fromTopicArn(scope, "Sns/Topic/Outcome-Notification", Fn.importValue(execStack.outputSnsTopicArn).toString())
+        });
     }
 }

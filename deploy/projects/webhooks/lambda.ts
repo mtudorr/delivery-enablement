@@ -31,7 +31,8 @@ export class Lambda {
                     ],
                     resources: [
                         secrets.webhooksGitHubKey.secretArn,
-                        secrets.webhooksStacksKey.secretArn
+                        secrets.webhooksStacksKey.secretArn,
+                        secrets.rollbarAccessToken.secretArn
                     ]
                 })
             ]
@@ -40,6 +41,7 @@ export class Lambda {
         const environment: Record<string, string> = {
             SECRET_NAME_GITHUB_KEY: secrets.webhooksGitHubKey.secretName,
             SECRET_NAME_STACKS_KEY: secrets.webhooksStacksKey.secretName,
+            SECRET_NAME_ROLLBAR_ACCESS_TOKEN: secrets.rollbarAccessToken.secretName,
             API_STACKS_ROOT: configuration.apiStacksRoot
         };
 
