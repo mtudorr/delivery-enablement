@@ -10,8 +10,10 @@ export class Stacks {
         this.environment = environment;
     }
 
-    public async create(repo: string, branch: string): Promise<void> {
-        const url = this.getUrlAbsoluteFor(`repos/${repo}/branches/${branch}/create`);
+    public async create(repo: string, branch: string, environmentLabel: string): Promise<void> {
+        const resourceRepoBranch = this.determineResourceRepoBranch(repo, branch);
+        const url = this.getUrlAbsoluteFor(`${this.determineResourceRepoBranch(repo, branch)}/create?env=${environmentLabel}`);
+        console.log("CREATE ENVIRONMENT URL:", url);
 
         const result = await fetch(url, { 
             method: "POST", 
@@ -21,7 +23,7 @@ export class Stacks {
     }
 
     public async build(repo: string, branch: string): Promise<void> {
-        const url = this.getUrlAbsoluteFor(`repos/${repo}/branches/${branch}/build`);
+        const url = this.getUrlAbsoluteFor(`${this.determineResourceRepoBranch(repo, branch)}/build`);
 
         const result = await fetch(url, { 
             method: "POST", 
@@ -31,7 +33,7 @@ export class Stacks {
     }
 
     public async remove(repo: string, branch: string): Promise<void> {
-        const url = this.getUrlAbsoluteFor(`repos/${repo}/branches/${branch}/remove`);
+        const url = this.getUrlAbsoluteFor(`${this.determineResourceRepoBranch(repo, branch)}/remove`);
 
         const result = await fetch(url, { 
             method: "POST", 
@@ -63,5 +65,9 @@ export class Stacks {
         }
 
         return `${urlRoot}${version}/${urlRelative}`;
+    }
+
+    private determineResourceRepoBranch(repo: string, branch: string): string {
+        return `repos/${encodeURIComponent(repo)}/branches/${encodeURIComponent(branch)}`;
     }
 }

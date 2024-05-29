@@ -3,7 +3,7 @@ export class IdOfStack {
     public readonly branch: string;
 
     public constructor(repo: string, branch: string) {
-        this.repo = repo;
-        this.branch = branch;
+        this.repo = decodeURIComponent(repo);
+        this.branch = decodeURIComponent(branch);
     }
 }

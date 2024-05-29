@@ -34,11 +34,11 @@ export class StackPersistence {
         console.log(id, res.Item);
 
         if (res.Item === undefined || 
-            res.Item.Repo.S === undefined ||
-            res.Item.Branch.S === undefined ||
-            res.Item.State.S === undefined ||
-            res.Item.Version.S === undefined ||
-            res.Item.EnvironmentLabel.S === undefined
+            res.Item.Repo?.S === undefined ||
+            res.Item.Branch?.S === undefined ||
+            res.Item.State?.S === undefined ||
+            res.Item.Version?.S === undefined ||
+            res.Item.EnvironmentLabel?.S === undefined
         ) {
             return null;
         }
