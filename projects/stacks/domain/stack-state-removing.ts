@@ -37,7 +37,7 @@ export class StackStateRemoving extends StackState {
     public override acknowledgeBuildFailed(): void {
         throw new Error("Method not implemented.");
     }
-    public override acknowledgeCreateBuildIgnored(): void {
+    public override acknowledgeBuildIgnored(): void {
         throw new Error("Method not implemented.");
     }
 
