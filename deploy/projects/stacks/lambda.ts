@@ -1,6 +1,7 @@
 import { Duration, Fn } from "aws-cdk-lib";
 import * as iam from "aws-cdk-lib/aws-iam";
 import * as sns from "aws-cdk-lib/aws-sns";
+import * as snsSubscriptions from "aws-cdk-lib/aws-sns-subscriptions";
 import * as nodeJsLambda from "aws-cdk-lib/aws-lambda-nodejs";
 import { Construct } from "constructs";
 import path = require("path");
@@ -176,10 +177,7 @@ export class Lambda {
                 environment
             });
         
-        new sns.Subscription(scope, "Sns/Subscription/Outcome-Notification", {
-            endpoint: functionAcknowledgeOutcomeNotification.functionArn,
-            protocol: sns.SubscriptionProtocol.LAMBDA,
-            topic: sns.Topic.fromTopicArn(scope, "Sns/Topic/Outcome-Notification", Fn.importValue(execStack.outputSnsTopicArn).toString())
-        });
+        const topic =  sns.Topic.fromTopicArn(scope, "Sns/Topic/Outcome-Notification", Fn.importValue(execStack.outputSnsTopicArn).toString());
+        topic.addSubscription(new snsSubscriptions.LambdaSubscription(functionAcknowledgeOutcomeNotification));
     }
 }
