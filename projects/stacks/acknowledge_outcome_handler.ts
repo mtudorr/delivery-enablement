@@ -1,4 +1,3 @@
-import { Stack } from "./domain/stack";
 import { CreateSuccessOutcomeHandler } from "./acknowledge_outcome_handlers/create_success_outcome_handler";
 import { CreateFailOutcomeHandler } from "./acknowledge_outcome_handlers/create_fail_outcome_handler";
 import { CreateIgnoreOutcomeHandler } from "./acknowledge_outcome_handlers/create_ignore_outcome_handler";
@@ -8,35 +7,9 @@ import { BuildIgnoreOutcomeHandler } from "./acknowledge_outcome_handlers/build_
 import { RemoveSuccessOutcomeHandler } from "./acknowledge_outcome_handlers/remove_success_outcome_handler";
 import { RemoveFailOutcomeHandler } from "./acknowledge_outcome_handlers/remove_fail_outcome_handler";
 import { RemoveIgnoreOutcomeHandler } from "./acknowledge_outcome_handlers/remove_ignore_outcome_handler";
+import { AcknowledgeOutcomeHandler } from "./acknowledge_outcome_handlers/abstract-acknowledge_outcome_handler";
 
-interface AcknowledgeOutcomeHandler {
-    setNext(handler: AcknowledgeOutcomeHandler): AcknowledgeOutcomeHandler;
-    handle(action: string, outcome: string, stack: Stack): void;
-}
-
-export abstract class AbstractAcknowledgeOutcomeHandler implements AcknowledgeOutcomeHandler {
-    private nextHandler: AcknowledgeOutcomeHandler | null = null;
-
-    public setNext(handler: AcknowledgeOutcomeHandler): AcknowledgeOutcomeHandler {
-        this.nextHandler = handler;
-        return handler;
-    }
-
-    public handle(action: string, outcome: string, stack: Stack): void {
-        if (this.nextHandler) {
-            this.nextHandler.handle(action, outcome, stack);
-        }
-    }
-
-    public addHandlers(handlers: AcknowledgeOutcomeHandler[]): void {
-        if (handlers.length === 0) return;
-
-        let currentHandler: AcknowledgeOutcomeHandler = this;
-        for (const handler of handlers) {
-            currentHandler = currentHandler.setNext(handler);
-        }
-    }
-
+export abstract class AcknowledgeOutcome {
     public static initializeChain(): AcknowledgeOutcomeHandler {
         const createSuccessOutcomeHandler = new CreateSuccessOutcomeHandler();
         const createFailOutcomeHandler = new CreateFailOutcomeHandler();
@@ -49,14 +22,14 @@ export abstract class AbstractAcknowledgeOutcomeHandler implements AcknowledgeOu
         const removeIgnoreOutcomeHandler = new RemoveIgnoreOutcomeHandler();
 
         createSuccessOutcomeHandler
-        .setNext(createFailOutcomeHandler)
-        .setNext(createIgnoreOutcomeHandler)
-        .setNext(buildSuccessOutcomeHandler)
-        .setNext(buildFailOutcomeHandler)
-        .setNext(buildIgnoreOutcomeHandler)
-        .setNext(removeSuccessOutcomeHandler)
-        .setNext(removeFailOutcomeHandler)
-        .setNext(removeIgnoreOutcomeHandler);
+            .setNext(createFailOutcomeHandler)
+            .setNext(createIgnoreOutcomeHandler)
+            .setNext(buildSuccessOutcomeHandler)
+            .setNext(buildFailOutcomeHandler)
+            .setNext(buildIgnoreOutcomeHandler)
+            .setNext(removeSuccessOutcomeHandler)
+            .setNext(removeFailOutcomeHandler)
+            .setNext(removeIgnoreOutcomeHandler);
         return createSuccessOutcomeHandler;
     }
 }

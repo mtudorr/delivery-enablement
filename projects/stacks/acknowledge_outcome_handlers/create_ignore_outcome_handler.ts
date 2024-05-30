@@ -1,4 +1,4 @@
-import { AbstractAcknowledgeOutcomeHandler } from "../acknowledge_outcome_handler";
+import { AbstractAcknowledgeOutcomeHandler } from "./abstract-acknowledge_outcome_handler";
 import { Stack } from "../domain/stack";
 
 export class CreateIgnoreOutcomeHandler extends AbstractAcknowledgeOutcomeHandler {
