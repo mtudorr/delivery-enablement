@@ -7,11 +7,15 @@ type Payload = PayloadPush | PayloadOpen | PayloadClose;
 export type { Payload };
 
 export function extractRepoAndBranchNames(payload: Payload): { repo: string; branch: string } | null {
+    const pushPattern = /refs\/heads\/(.+)/;
     const repo = payload.repository.name;
     let branch = '';
 
     if (isPayloadPush(payload)) {
-        branch = payload.ref.split('/').pop() || '';
+        const match = payload.ref.match(pushPattern);
+        if(match) {
+            branch = match[1];
+        }
     } else if (isPayloadOpen(payload) || isPayloadClose(payload)) {
         branch = payload.pull_request.head.ref;
     } else {

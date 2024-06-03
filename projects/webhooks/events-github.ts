@@ -54,10 +54,6 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayEvent): P
         const body: Payload = JSON.parse(event.body);
         const { repo, branch } = extractRepoAndBranchNames(body) ?? { repo: '', branch: '' };
         
-        if (repo.length === 0 || branch.length === 0) {
-            throw new Error(`Invalid repo and branch, found [${repo}][${branch}]`);
-        }
-
         if (isPayloadPush(body) && hasChanges(body)) {
             console.log("Initiate build");
 

@@ -68,6 +68,10 @@ export class Stacks {
     }
 
     private determineResourceRepoBranch(repo: string, branch: string): string {
+        if (repo.length === 0 || branch.length === 0) {
+            throw new Error(`Invalid repo and branch, found [${repo}][${branch}]`);
+        }
+        console.log(repo, branch);
         return `repos/${encodeURIComponent(repo)}/branches/${encodeURIComponent(branch)}`;
     }
 }
