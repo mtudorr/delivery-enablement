@@ -6,7 +6,8 @@ export const schemaDefinitionStage = zod.object({
     idOfInputStage: zod.string().optional(),
     steps: zod.array(schemaDefinitionStep).readonly(),
     outputFiles: zod.array(zod.string()).readonly().optional(),
-    excludedEnvironments: zod.array(zod.string()).readonly().optional()
+    excludedEnvironments: zod.array(zod.string()).readonly().optional(),
+    restrictEnvironments: zod.array(zod.string()).readonly().optional()
 });
 
 export type DefinitionStage = Readonly<zod.infer<typeof schemaDefinitionStage>>;

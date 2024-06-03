@@ -7,6 +7,10 @@
             "branch": "main"
         }
     ],
+    "environmentFeature": {
+        "awsAccountId": "787554509201",
+        "awsRegion": "eu-central-1"
+    },
     "pipeline": {
         "stages": [
             {
@@ -44,7 +48,8 @@
                             "npx cdk deploy --all"
                         ]
                     }
-                ]
+                ],
+                "restrictEnvironments": [ "main" ]
             }
         ]
     }

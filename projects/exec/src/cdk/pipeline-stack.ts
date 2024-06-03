@@ -73,6 +73,10 @@ export class PipelineStack extends cdk.Stack {
         });
 
         for (const stage of config.stages) {
+            if (stage.restrictEnvironments && !stage.restrictEnvironments.includes(environmentLabel)) {
+                continue;
+            }
+
             const idOfInputStage = stage.idOfInputStage ?? idOfSourceStage;
             const input = artifactByStageId.get(idOfInputStage);
             if (input === undefined) {
