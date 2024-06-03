@@ -5,7 +5,7 @@ import { Environment } from "./platform/environment";
 import { IdOfStack } from "./domain/id-of-stack";
 import { Stack } from "./domain/stack";
 import { ExecDispatch } from "./platform/exec-dispatch";
-import { AcknowledgeOutcome } from "./acknowledge_outcome_handler";
+import { AcknowledgeOutcome } from "./acknowledge-outcome";
 
 const environment = new Environment();
 const stackPersistence = new StackPersistence(environment);

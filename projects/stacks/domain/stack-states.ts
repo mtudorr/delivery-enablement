@@ -31,6 +31,8 @@ export class StackStates {
                 return new StackStatePendingCreate();
             case StackStateEnum.PENDING_RECREATE:
                 return new StackStatePendingRecreate();
+            case StackStateEnum.BUILT:
+                throw new Error("Not implemented");
         }
     }
 }

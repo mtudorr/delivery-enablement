@@ -1,0 +1,51 @@
+{
+    "environmentStable": [
+        {
+            "awsAccountId": "787554509201",
+            "awsRegion": "eu-central-1",
+            "label": "prd",
+            "branch": "main"
+        }
+    ],
+    "pipeline": {
+        "stages": [
+            {
+                "id": "Test",
+                "steps": [
+                    {
+                        "action": "install",
+                        "commands": [
+                            "npm ci"
+                        ]
+                    },
+                    {
+                        "action": "build",
+                        "commands": [
+                            "npm run test"
+                        ]
+                    }
+                ],
+                "outputFiles": [
+                    "**/*"
+                ]
+            },
+            {
+                "id": "Deploy",
+                "steps": [
+                    {
+                        "action": "install",
+                        "commands": [
+                            "npm ci"
+                        ]
+                    },
+                    {
+                        "action": "build",
+                        "commands": [
+                            "npx cdk deploy --all"
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}
