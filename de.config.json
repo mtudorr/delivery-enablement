@@ -7,6 +7,9 @@
             "branch": "main"
         }
     ],
+    "environmentSecrets": [
+        "GitHub-OAuth-Token"
+    ],
     "environmentFeature": {
         "awsAccountId": "787554509201",
         "awsRegion": "eu-central-1"

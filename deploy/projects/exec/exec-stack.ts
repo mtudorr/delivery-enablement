@@ -44,6 +44,8 @@ export class ExecStack extends cdk.Stack {
         });
         taskExecutionRole.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName("service-role/AmazonECSTaskExecutionRolePolicy"));
 
+        // TODO: Add Secrets Manager secret with name SONARCUBE_TOKEN
+
         const vpc = ec2.Vpc.fromLookup(stack, "Vpc/Default", {
             vpcId: config.vpcId
         });
