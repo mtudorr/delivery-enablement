@@ -2,6 +2,8 @@
 
 echo "INFO: Starting deploying pipeline"
 
+chmod 777 -R /delivery-enablement
+
 npx cdk deploy --context repo=$REPO --context branch=$BRANCH --context config=/delivery-enablement/de.config.json --context envLabel=$ENV_LABEL --outputs-file /delivery-enablement/cdk.output.json --require-approval never
 retCdkDeploy=$?
 
