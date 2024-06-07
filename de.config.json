@@ -4,11 +4,11 @@
             "awsAccountId": "787554509201",
             "awsRegion": "eu-central-1",
             "label": "prd",
-            "branch": "main"
+            "branch": "main",
+            "environmentSecrets": [
+                "delivery-enablement-webhooks-stacks-key"
+            ]
         }
-    ],
-    "environmentSecrets": [
-        "delivery-enablement-webhooks-stacks-key"
     ],
     "environmentFeature": {
         "awsAccountId": "787554509201",
