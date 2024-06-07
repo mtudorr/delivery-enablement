@@ -33,6 +33,8 @@ export class StackStates {
                 return new StackStatePendingRecreate();
             case StackStateEnum.BUILT:
                 throw new Error("Not implemented");
+            case StackStateEnum.FAILED:
+                throw new Error("Not implemented");
         }
     }
 }

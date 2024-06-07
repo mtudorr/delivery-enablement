@@ -41,15 +41,15 @@ export class PipelineStack extends cdk.Stack {
             value: environmentLabel
         };
         environmentVariables["GITHUB_OAUTH_TOKEN"] = {
-            type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
-            value: "GitHub-OAuth-Token"
+            type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
+            value: cdk.SecretValue.secretsManager("GitHub-OAuth-Token").unsafeUnwrap().toString()
         };
 
         const environmentSecretsInStage = environment.environmentSecrets ?? [];
         for (const name in environmentSecretsInStage) {
             environmentVariables[name] = {
-                type: codeBuild.BuildEnvironmentVariableType.SECRETS_MANAGER,
-                value: environmentSecretsInStage[name]
+                type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
+                value: cdk.SecretValue.secretsManager(environmentSecretsInStage[name]).unsafeUnwrap().toString()
             };
         }
 

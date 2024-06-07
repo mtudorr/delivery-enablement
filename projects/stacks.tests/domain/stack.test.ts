@@ -28,4 +28,48 @@ describe("Stack", () => {
         // assert
         expect(testInstance.state).toBe(StackStateEnum.CREATING);
     });
+
+    it ("CREATING should transition to PENDING_BUILD on 'build'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.CREATING);
+
+        // act
+        testInstance.build();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("CREATING should transition to PENDING_REMOVE on 'remove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.CREATING);
+
+        // act
+        testInstance.remove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_REMOVE);
+    });
+
+    // it ("CREATING should transition to BUILT on 'acknowledgeBuild'", () => {
+    //     // arrange
+    //     const testInstance = createTestInstance(StackStateEnum.CREATING);
+
+    //     // act
+    //     testInstance.acknowledgeBuild();
+
+    //     // assert
+    //     expect(testInstance.state).toBe(StackStateEnum.IGNORED);
+    // });
+
+    it ("CREATING should transition to REMOVED on 'acknowledgeRemove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.CREATING);
+
+        // act
+        testInstance.acknowledgeRemove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.REMOVED);
+    });
 });

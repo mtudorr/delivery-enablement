@@ -23,31 +23,31 @@ export class StackStateCreating extends StackState {
     }
 
     public override acknowledgeCreateFailed(): void {
-        throw new Error("Method not implemented.");
+        this.transitionTo(StackStateEnum.FAILED);
     }
     public override acknowledgeCreateIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 
     public override acknowledgeBuild(): void {
-        this.transitionTo(StackStateEnum.BUILT);
+        this.ignore();
     }
 
     public override acknowledgeBuildFailed(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
     public override acknowledgeBuildIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 
     public override acknowledgeRemove(): void {
-        this.transitionTo(StackStateEnum.REMOVED);
+        this.transitionTo(StackStateEnum.PENDING_REMOVE);
     }
 
     public override acknowledgeRemoveFailed(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
     public override acknowledgeRemoveIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 }

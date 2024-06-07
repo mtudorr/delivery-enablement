@@ -8,7 +8,7 @@
         }
     ],
     "environmentSecrets": [
-        "GitHub-OAuth-Token"
+        "delivery-enablement-webhooks-stacks-key"
     ],
     "environmentFeature": {
         "awsAccountId": "787554509201",

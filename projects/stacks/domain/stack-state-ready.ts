@@ -23,10 +23,10 @@ export class StackStateReady extends StackState {
     }
 
     public override acknowledgeCreateFailed(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
     public override acknowledgeCreateIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 
     public override acknowledgeBuild(): void {
@@ -34,10 +34,10 @@ export class StackStateReady extends StackState {
     }
 
     public override acknowledgeBuildFailed(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
     public override acknowledgeBuildIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 
     public override acknowledgeRemove(): void {
@@ -45,9 +45,9 @@ export class StackStateReady extends StackState {
     }
 
     public override acknowledgeRemoveFailed(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
     public override acknowledgeRemoveIgnored(): void {
-        throw new Error("Method not implemented.");
+        this.ignore();
     }
 }
