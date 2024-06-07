@@ -46,10 +46,10 @@ export class PipelineStack extends cdk.Stack {
         };
 
         const environmentSecretsInStage = environment.environmentSecrets ?? [];
-        for (const name in environmentSecretsInStage) {
+        for (const name of environmentSecretsInStage) {
             environmentVariables[name] = {
                 type: codeBuild.BuildEnvironmentVariableType.PLAINTEXT,
-                value: cdk.SecretValue.secretsManager(environmentSecretsInStage[name]).unsafeUnwrap().toString()
+                value: cdk.SecretValue.secretsManager(name).unsafeUnwrap().toString()
             };
         }
 
