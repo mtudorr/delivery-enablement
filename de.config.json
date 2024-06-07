@@ -52,7 +52,7 @@
                         ]
                     }
                 ],
-                "restrictEnvironments": [ "main" ]
+                "restrictEnvironments": [ "prd" ]
             }
         ]
     }
