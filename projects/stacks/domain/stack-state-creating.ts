@@ -41,7 +41,7 @@ export class StackStateCreating extends StackState {
     }
 
     public override acknowledgeRemove(): void {
-        this.transitionTo(StackStateEnum.PENDING_REMOVE);
+        this.ignore();
     }
 
     public override acknowledgeRemoveFailed(): void {
