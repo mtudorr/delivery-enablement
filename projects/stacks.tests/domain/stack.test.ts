@@ -51,18 +51,18 @@ describe("Stack", () => {
         expect(testInstance.state).toBe(StackStateEnum.PENDING_REMOVE);
     });
 
-    // it ("CREATING should transition to BUILT on 'acknowledgeBuild'", () => {
-    //     // arrange
-    //     const testInstance = createTestInstance(StackStateEnum.CREATING);
+    it ("CREATING should transition to CREATING on 'acknowledgeBuild'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.CREATING);
 
-    //     // act
-    //     testInstance.acknowledgeBuild();
+        // act
+        testInstance.acknowledgeBuild();
 
-    //     // assert
-    //     expect(testInstance.state).toBe(StackStateEnum.IGNORED);
-    // });
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.CREATING);
+    });
 
-    it ("CREATING should transition to REMOVED on 'acknowledgeRemove'", () => {
+    it ("CREATING should transition to CREATING on 'acknowledgeRemove'", () => {
         // arrange
         const testInstance = createTestInstance(StackStateEnum.CREATING);
 
@@ -70,6 +70,6 @@ describe("Stack", () => {
         testInstance.acknowledgeRemove();
 
         // assert
-        // expect(testInstance.state).toBe(StackStateEnum.REMOVED);
+        expect(testInstance.state).toBe(StackStateEnum.CREATING);
     });
 });
