@@ -3,7 +3,7 @@ import { Stack } from "../domain/stack";
 
 export class RemoveFailOutcomeHandler extends AbstractAcknowledgeOutcomeHandler {
     public handle(action: string, outcome: string, stack: Stack): void {
-        if (action === "remove" && outcome === "success") {
+        if (action === "remove" && outcome === "fail") {
             stack.acknowledgeRemoveFailed();
         } else {
             super.handle(action, outcome, stack);
