@@ -446,4 +446,139 @@ describe("Stack", () => {
         // assert
         expect(testInstance.state).toBe(StackStateEnum.REMOVING);
     });
+
+    it ("READY should ignore on 'create'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.create();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should transition to BUILDING on 'build'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.build();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.BUILDING);
+    });
+
+    it ("READY should transition to REMOVING on 'remove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.remove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.REMOVING);
+    });
+
+    it ("READY should ignore on 'acknowledgeCreate'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeCreate();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeCreateFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeCreateFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeCreateIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeCreateIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeBuild'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeBuild();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeBuildFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeBuildFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeBuildIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeBuildIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("READY should ignore on 'acknowledgeRemove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeRemove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+    
+    it ("READY should ignore on 'acknowledgeRemoveFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeRemoveFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    
+    it ("READY should ignore on 'acknowledgeRemoveIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.READY);
+
+        // act
+        testInstance.acknowledgeRemoveIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+
 });

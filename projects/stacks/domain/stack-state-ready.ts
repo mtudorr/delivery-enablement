@@ -30,7 +30,7 @@ export class StackStateReady extends StackState {
     }
 
     public override acknowledgeBuild(): void {
-        this.transitionTo(StackStateEnum.BUILT);
+        this.ignore();
     }
 
     public override acknowledgeBuildFailed(): void {
@@ -41,7 +41,7 @@ export class StackStateReady extends StackState {
     }
 
     public override acknowledgeRemove(): void {
-        this.transitionTo(StackStateEnum.REMOVED);
+        this.ignore();
     }
 
     public override acknowledgeRemoveFailed(): void {
