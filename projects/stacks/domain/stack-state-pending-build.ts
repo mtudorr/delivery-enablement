@@ -15,33 +15,34 @@ export class StackStatePendingBuild extends StackState {
     }
 
     public remove(): void {
-        this.transitionTo(StackStateEnum.PENDING_REMOVE);
+        this.transitionTo(StackStateEnum.REMOVING);
     }
 
     public override acknowledgeCreate(): void {
-        this.ignore();
+        this.transitionTo(StackStateEnum.BUILDING);
     }
 
     public override acknowledgeCreateFailed(): void {
-        this.transitionTo(StackStateEnum.FAILED);
+        this.transitionTo(StackStateEnum.READY);
     }
     public override acknowledgeCreateIgnored(): void {
         this.ignore();
     }
 
     public override acknowledgeBuild(): void {
-        this.transitionTo(StackStateEnum.BUILT);
+        this.transitionTo(StackStateEnum.BUILDING);
     }
 
     public override acknowledgeBuildFailed(): void {
-        this.transitionTo(StackStateEnum.FAILED);
+        this.transitionTo(StackStateEnum.BUILDING);
     }
+
     public override acknowledgeBuildIgnored(): void {
         this.ignore();
     }
 
     public override acknowledgeRemove(): void {
-        this.transitionTo(StackStateEnum.REMOVED);
+        this.ignore();
     }
 
     public override acknowledgeRemoveFailed(): void {

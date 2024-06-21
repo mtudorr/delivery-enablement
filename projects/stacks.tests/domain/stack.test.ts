@@ -580,5 +580,270 @@ describe("Stack", () => {
         expect(testInstance.state).toBe(StackStateEnum.READY);
     });
 
+    it ("PENDING_CREATE should ignore on 'create'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.create();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should ignore on 'build'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.build();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should transition to REMOVING on 'remove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.remove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.REMOVING);
+    });
+
+    it ("PENDING_CREATE should transition to READY on 'acknowledgeCreate'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeCreate();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("PENDING_CREATE should transition to READY on 'acknowledgeCreateFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeCreateFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("PENDING_CREATE should ignore on 'acknowledgeCreateIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeCreateIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should ignore on 'acknowledgeBuild'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeBuild();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    
+    it ("PENDING_CREATE should ignore on 'acknowledgeBuildFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeBuildFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should ignore on 'acknowledgeBuildIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeBuildIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should transition to CREATING on 'acknowledgeRemove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeRemove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.CREATING);
+    });
+
+    it ("PENDING_CREATE should ignore on 'acknowledgeRemoveFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeRemoveFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_CREATE should ignore on 'acknowledgeRemoveIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_CREATE);
+
+        // act
+        testInstance.acknowledgeRemoveIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_CREATE);
+    });
+
+    it ("PENDING_BUILD should ignore on 'create'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.create();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("PENDING_BUILD should self-transition on 'build'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.build();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("PENDING_BUILD should transition to REMOVING on 'remove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.remove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.REMOVING);
+    });
+
+    it ("PENDING_BUILD should transition to REMOVING on 'acknowledgeCreate'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeCreate();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.BUILDING);
+    });
+
+    it ("PENDING_BUILD should transition to READY on 'acknowledgeCreateFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeCreateFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.READY);
+    });
+
+    it ("PENDING_BUILD should transition to READY on 'acknowledgeCreateIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeCreateIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("PENDING_BUILD should transition to BUILDING on 'acknowledgeBuild'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeBuild();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.BUILDING);
+    });
+
+    it ("PENDING_BUILD should transition to BUILDING on 'acknowledgeBuildFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeBuildFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.BUILDING);
+    });
+
+    it ("PENDING_BUILD should ignore on 'acknowledgeBuildIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeBuildIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("PENDING_BUILD should ignore on 'acknowledgeRemove'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeRemove();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    
+    it ("PENDING_BUILD should ignore on 'acknowledgeRemoveFail'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeRemoveFailed();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
+
+    it ("PENDING_BUILD should ignore on 'acknowledgeRemoveIgnore'", () => {
+        // arrange
+        const testInstance = createTestInstance(StackStateEnum.PENDING_BUILD);
+
+        // act
+        testInstance.acknowledgeRemoveIgnored();
+
+        // assert
+        expect(testInstance.state).toBe(StackStateEnum.PENDING_BUILD);
+    });
 
 });
