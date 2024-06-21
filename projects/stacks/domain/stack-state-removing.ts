@@ -8,11 +8,11 @@ export class StackStateRemoving extends StackState {
     }
 
     public create(): void {
-        this.transitionTo(StackStateEnum.PENDING_CREATE);
+        this.transitionTo(StackStateEnum.PENDING_RECREATE);
     }
 
     public build(): void {
-        this.transitionTo(StackStateEnum.PENDING_CREATE);
+        this.transitionTo(StackStateEnum.PENDING_BUILD);
     }
 
     public remove(): void {
@@ -46,7 +46,7 @@ export class StackStateRemoving extends StackState {
     }
 
     public override acknowledgeRemoveFailed(): void {
-        this.transitionTo(StackStateEnum.FAILED);
+        this.transitionTo(StackStateEnum.READY);
     }
     public override acknowledgeRemoveIgnored(): void {
         this.ignore();

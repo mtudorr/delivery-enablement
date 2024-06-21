@@ -1,5 +1,6 @@
 import { StackState } from "./stack-state";
 import { StackStateBuilding } from "./stack-state-building";
+import { StackStateBuilt } from "./stack-state-built";
 import { StackStateCreating } from "./stack-state-creating";
 import { StackStateEnum } from "./stack-state-enum";
 import { StackStatePendingBuild } from "./stack-state-pending-build";
@@ -32,7 +33,7 @@ export class StackStates {
             case StackStateEnum.PENDING_RECREATE:
                 return new StackStatePendingRecreate();
             case StackStateEnum.BUILT:
-                throw new Error("Not implemented");
+                return new StackStateBuilt();
             case StackStateEnum.FAILED:
                 throw new Error("Not implemented");
         }

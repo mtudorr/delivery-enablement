@@ -7,7 +7,7 @@ export class StackStateBuilding extends StackState {
     }
 
     public create(): void {
-        this.ignore();
+        this.transitionTo(StackStateEnum.PENDING_CREATE);
     }
 
     public build(): void {
@@ -30,11 +30,11 @@ export class StackStateBuilding extends StackState {
     }
 
     public override acknowledgeBuild(): void {
-        this.transitionTo(StackStateEnum.BUILT);
+        this.transitionTo(StackStateEnum.READY);
     }
 
     public override acknowledgeBuildFailed(): void {
-        this.transitionTo(StackStateEnum.FAILED);
+        this.transitionTo(StackStateEnum.READY);
     }
     public override acknowledgeBuildIgnored(): void {
         this.ignore();

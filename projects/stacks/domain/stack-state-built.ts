@@ -1,36 +1,36 @@
 import { StackState } from "./stack-state";
 import { StackStateEnum } from "./stack-state-enum";
 
-export class StackStateCreating extends StackState {
+export class StackStateBuilt extends StackState {
     public constructor() {
-        super(StackStateEnum.CREATING);
+        super(StackStateEnum.BUILT);
     }
 
-    public override create(): void {
+    public create(): void {
+        this.ignore();
+    }
+
+    public build(): void {
         this.selfTransition();
     }
 
-    public override build(): void {
-        this.transitionTo(StackStateEnum.PENDING_BUILD);
-    }
-
-    public override remove(): void {
-        this.transitionTo(StackStateEnum.PENDING_REMOVE);
+    public remove(): void {
+        this.remove();
     }
 
     public override acknowledgeCreate(): void {
-        this.transitionTo(StackStateEnum.READY);
+        this.ignore();
     }
 
     public override acknowledgeCreateFailed(): void {
-        this.transitionTo(StackStateEnum.READY);
+        this.ignore();
     }
     public override acknowledgeCreateIgnored(): void {
         this.ignore();
     }
 
     public override acknowledgeBuild(): void {
-        this.ignore();
+        this.selfTransition();
     }
 
     public override acknowledgeBuildFailed(): void {
